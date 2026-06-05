@@ -18,6 +18,7 @@ MSK Provisioned clusters support 4 monitoring levels. Each level includes all me
 For the full metric list per broker type and monitoring level, search AWS docs for `"MSK CloudWatch metrics Standard brokers"` or `"MSK CloudWatch metrics Express brokers"`.
 
 Update monitoring level:
+
 ```
 # Get the cluster's current revision version first (this is an opaque revision string, NOT a Kafka version number):
 # aws kafka describe-cluster-v2 --cluster-arn <cluster-arn> --query 'ClusterInfo.CurrentVersion' --output text
@@ -127,4 +128,3 @@ Create a CloudWatch dashboard with these sections:
 6. **Request Performance**: `RequestHandlerAvgIdlePercent`, `ProduceTotalTimeMsMean` per broker
 
 Use metric math for composite CPU alarm: `m1 + m2` where m1 is defined as `CpuUser` and m2 is defined as `CpuSystem` for the target broker.
-

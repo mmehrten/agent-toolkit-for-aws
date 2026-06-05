@@ -20,6 +20,7 @@ aws kafka update-broker-storage \
 ```
 
 **Constraints:**
+
 - You MUST get the current cluster version first: `aws kafka describe-cluster-v2 --cluster-arn <arn>` — the version string looks like `KTVPDKIKX0DER`, not a simple integer.
 - Storage expansion has a cool-down period of minimum 6 hours. A second expansion attempt during cool-down fails with "storage is optimizing."
 - Optimization after expansion can take up to 24 hours proportional to storage size.
@@ -29,6 +30,7 @@ aws kafka update-broker-storage \
 Auto-scaling automatically expands storage when utilization reaches a threshold. Configure via the MSK console or Application Auto Scaling API.
 
 Policy parameters:
+
 - **Storage Utilization Target**: Recommended 50-60%. Range: 10-80%.
 - **Maximum Storage Capacity**: Up to 16 TiB per broker.
 
@@ -74,9 +76,11 @@ Even though Express storage scales automatically, you should actively monitor fo
 
 1. **Check per-topic ingress**: Use `BytesInPerSec` at PER_TOPIC_PER_BROKER level to identify which topics are driving the most data volume.
 2. **Check topic-level retention overrides**: A topic with `retention.ms` set higher than the cluster default will retain more data. Audit topic configs with:
+
    ```
    kafka-configs.sh --bootstrap-server <bootstrap> --describe --entity-type topics --entity-name <topic>
    ```
+
 3. **Check for compacted topics**: Topics with `cleanup.policy=compact` retain data indefinitely based on key cardinality, not time. High-cardinality compacted topics can grow without bound.
 4. **Check for topic proliferation**: A growing number of topics (each with RF=3) compounds storage. Monitor `GlobalTopicCount` at the cluster level.
 5. **Reduce retention**: Lowering `retention.ms` on high-volume topics is the most direct way to reduce stored data. Coordinate with app owners before changing — reducing retention deletes data permanently.
@@ -99,6 +103,7 @@ Standard brokers can optionally enable tiered storage to extend retention beyond
 ### Example retention scenario
 
 With `retention.ms = 5 days` and `local.retention.ms = 12 hours`:
+
 - Data stays on fast primary storage for 12 hours
 - Data remains in tiered storage for the full 5 days
 - Consumers reading data older than 12 hours fetch from tiered storage with slightly higher initial latency

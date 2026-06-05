@@ -26,6 +26,7 @@ Compute average message size: `BytesInPerSec / MessagesInPerSec`. If average mes
 **Fix**: Recommend client-side batching changes — see [configure-clients.md](configure-clients.md). All three settings matter: `linger.ms >= 5` (recommend 25ms), `batch.size >= 65536` (64-128 KB), and `compression.type = lz4` or `zstd`. These work together — `linger.ms` allows time to fill the batch, `batch.size` sets the batch capacity, compression reduces the final payload. Do NOT recommend broker scaling as the first action.
 
 **Other CPU contributing factors** (check if batch size is not the cause):
+
 - Compression type: Broker-side recompression (when `compression.type` is not `producer`) consumes CPU
 - Record format conversions: Clients using older message format versions force conversion
 - Log compaction: `log.cleaner.min.cleanable.ratio` set too low (e.g., 0.01 instead of 0.5)
@@ -47,6 +48,7 @@ Check the EBS volume type and size. MSK Standard brokers use EBS volumes with th
 **Confirm with CloudWatch** (PER_BROKER level): `VolumeWriteBytes`, `VolumeReadBytes`, `VolumeTotalWriteTime`, `VolumeTotalReadTime`, `VolumeQueueLength`. Elevated queue length and write time confirm EBS saturation. **If monitoring is DEFAULT**: check `CpuIoWait` — sustained elevation indicates threads blocked on disk I/O, a free proxy for EBS saturation.
 
 **Fix options** (in order of preference):
+
 1. Enable provisioned throughput (GP3) — requires broker size `kafka.m5.4xlarge` or larger (or `kafka.m7g.2xlarge` or larger). Max throughput varies by broker size (593 MiB/s for m5.4xl up to 1000 MiB/s for m5.12xl+).
 2. Upgrade broker instance type to one with higher EBS-to-EC2 network bandwidth.
 3. Migrate to Express brokers — eliminates EBS management entirely.
@@ -58,6 +60,7 @@ Check the EBS volume type and size. MSK Standard brokers use EBS volumes with th
 Standard brokers run on EC2 instances with network bandwidth limits enforced by the hypervisor. When exceeded, packets are shaped (dropped/delayed), causing latency spikes without high CPU.
 
 **Check these PER_BROKER level metrics:**
+
 - `BwInAllowanceExceeded` > 0: Inbound bandwidth exceeded
 - `BwOutAllowanceExceeded` > 0: Outbound bandwidth exceeded
 - `PpsAllowanceExceeded` > 0: Packets-per-second limit exceeded (many small messages)
@@ -72,6 +75,7 @@ Standard brokers run on EC2 instances with network bandwidth limits enforced by 
 2. **Check if throughput exceeds the instance type's network baseline**: Each EC2 instance type has a network bandwidth baseline and burst limit. Sustained throughput above baseline triggers shaping.
 
 **Fix options:**
+
 - Spread producer and consumer clients across all availability zones
 - If AZ-local reads (`client.rack`) are required, ensure write traffic and partition leadership are balanced across AZs first
 - Upgrade to a larger instance type with higher network baseline bandwidth
@@ -82,6 +86,7 @@ Standard brokers run on EC2 instances with network bandwidth limits enforced by 
 Express brokers do NOT have EC2-level traffic shaping metrics (`BwInAllowanceExceeded`, `BwOutAllowanceExceeded`, etc. are not emitted). Instead, Express enforces per-broker throughput quotas directly. When exceeded, MSK throttles client traffic at the Kafka protocol level.
 
 **Check these PER_BROKER level metrics:**
+
 - `ProduceThrottleTime` > 0: Ingress quota exceeded — producers are being throttled
 - `FetchThrottleTime` > 0: Egress quota exceeded — consumers are being throttled
 - `ProduceThrottleByteRate` / `FetchThrottleByteRate`: Bytes/sec being throttled
@@ -92,6 +97,7 @@ Check the [MSK Express broker quotas](https://docs.aws.amazon.com/msk/latest/dev
 **Also check for AZ skew on Express**: Compare per-broker `BytesInPerSec` and `BytesOutPerSec`. If some brokers are throttled while others have headroom, the issue is uneven traffic distribution — same causes and fixes as Standard (consumer `client.rack` in one AZ, unbalanced partition leadership).
 
 **Fix options:**
+
 - Scale to a larger Express broker size
 - Add more brokers — Express clusters with Intelligent Rebalancing enabled will automatically redistribute partitions. If Intelligent Rebalancing is disabled, manually rebalance (limit to 20 partitions per reassignment call).
 - Spread consumers across all AZs to balance egress load

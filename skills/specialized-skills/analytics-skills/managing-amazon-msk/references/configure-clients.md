@@ -54,6 +54,7 @@ sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbac
 ```
 
 **Constraints:**
+
 - Maximum 3000 TCP connections per broker with IAM. This limit is adjustable via `listener.name.client_iam.max.connections` dynamic config.
 - Maximum 100 new IAM connections per second per broker (M5/M7g); 4 per second on T3. This rate limit is not customer-adjustable.
 

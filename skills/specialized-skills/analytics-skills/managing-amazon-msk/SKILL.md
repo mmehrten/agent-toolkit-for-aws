@@ -8,7 +8,7 @@ description: >-
   storage, and traffic shaping diagnosis; sizing and choosing Standard vs Express;
   Kafka client tuning; creating CloudWatch alarms, dashboards, monitoring, and cluster
   configurations; AND MSK maintenance, patching, version upgrades, and rolling-restart
-  behavior. Triggers: MSK, Kafka on AWS, kafka.* or express.* instance types, AWS/Kafka
+  behavior. Triggers: MSK, Kafka on AWS, `kafka.*` or `express.*` instance types, AWS/Kafka
   CloudWatch namespace, alarms, dashboards, monitoring, consumer lag, partition replication,
   broker storage, MSK upgrades, patching, maintenance windows, SECURITY_PATCHING,
   BROKER_UPDATE, rolling restarts, unexpected broker reboots. Do NOT use for MSK Connect,
@@ -69,21 +69,25 @@ These 5 checks cover the most common MSK issues. Use them before loading a refer
 ## Common Workflows
 
 **Describe cluster:**
+
 ```
 aws kafka describe-cluster-v2 --cluster-arn <cluster-arn>
 ```
 
 **List brokers:**
+
 ```
 aws kafka list-nodes --cluster-arn <cluster-arn>
 ```
 
 **Get bootstrap brokers:**
+
 ```
 aws kafka get-bootstrap-brokers --cluster-arn <cluster-arn>
 ```
 
 **Expand Standard broker storage:**
+
 ```
 aws kafka update-broker-storage \
   --cluster-arn <cluster-arn> \
@@ -92,6 +96,7 @@ aws kafka update-broker-storage \
 ```
 
 **Get CloudWatch metrics (example: CpuUser per broker):**
+
 ```
 aws cloudwatch get-metric-statistics \
   --namespace AWS/Kafka \

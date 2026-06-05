@@ -73,7 +73,6 @@ Divide total required ingress/egress by per-broker sustained limits. Use whichev
 
 Check the [MSK Express broker quotas](https://docs.aws.amazon.com/msk/latest/developerguide/limits.html#msk-express-quota) for current partition limits per Express broker size. Larger Express broker sizes support more partitions. Ensure your total partition count (including replicas — always 3× on Express) stays below the recommended limit for your broker size.
 
-
 ### Step 4: No storage sizing needed
 
 Express storage is fully managed and pay-as-you-go. No provisioning required.

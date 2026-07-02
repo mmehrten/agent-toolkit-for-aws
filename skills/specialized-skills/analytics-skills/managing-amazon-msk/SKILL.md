@@ -8,9 +8,9 @@ description: >-
   storage, and traffic shaping diagnosis; sizing and choosing Standard vs Express;
   Kafka client tuning; creating CloudWatch alarms, dashboards, monitoring, and cluster
   configurations; AND MSK maintenance, patching, version upgrades, and rolling-restart
-  behavior. Triggers: MSK, Kafka on AWS, `kafka.*` or `express.*` instance types, AWS/Kafka
-  CloudWatch namespace, alarms, dashboards, monitoring, consumer lag, partition replication,
-  broker storage, MSK upgrades, patching, maintenance windows, SECURITY_PATCHING,
+  behavior. Triggers: MSK, Kafka on AWS, `kafka.*` or `express.*` instance types,
+  AWS/Kafka CloudWatch namespace, alarms, dashboards, monitoring, consumer lag, partition
+  replication, broker storage, MSK upgrades, patching, maintenance windows, SECURITY_PATCHING,
   BROKER_UPDATE, rolling restarts, unexpected broker reboots. Do NOT use for MSK Connect,
   MSK Serverless, or MSK Replicator.
 version: 1
@@ -46,11 +46,40 @@ Determine the broker type first: `aws kafka describe-cluster-v2 --cluster-arn <a
 | High CPU, high latency, slow cluster, traffic shaping | [troubleshoot-performance.md](references/troubleshoot-performance.md) |
 | Consumer lag increasing, rebalance storms, stuck consumer groups | [troubleshoot-consumer-lag.md](references/troubleshoot-consumer-lag.md) |
 | Disk filling up, retention planning, tiered storage | [manage-storage.md](references/manage-storage.md) |
-| Choosing Standard vs Express, sizing a cluster, partition limits | [size-and-choose-cluster.md](references/size-and-choose-cluster.md) |
+| Choosing Standard vs Express, sizing a cluster, partition limits, broker count, monthly cost | [size-and-choose-cluster.md](references/size-and-choose-cluster.md) |
 | Producer/consumer configuration, IAM/SCRAM/TLS auth | [configure-clients.md](references/configure-clients.md) |
 | Setting up monitoring, dashboards, alarms | [monitor-and-alarm.md](references/monitor-and-alarm.md) |
 | Full CloudWatch metric list (Standard or Express) | Search AWS docs for `"MSK CloudWatch metrics Standard brokers"` or `"MSK CloudWatch metrics Express brokers"` |
 | Rolling restart impact, patching, maintenance resilience | [maintenance-operations.md](references/maintenance-operations.md) |
+
+## Available scripts
+
+- **`scripts/msk_sizing.py`** — **MUST** be run for any sizing question (broker count, instance choice, cost). See [size-and-choose-cluster.md](references/size-and-choose-cluster.md) for the required workflow and script reference.
+
+## Guardrail — where this skill's own files live (MCP vs local install)
+
+This skill can be loaded two ways, and they resolve the skill's **own bundled files** — the `references/` documents and the `scripts/` files
+from different places. Determine how the skill was loaded before you read a reference or run a script:
+
+- **Loaded through the AWS MCP `retrieve_skill` tool call.** The skill is **not
+  installed on the local filesystem**; its reference files and scripts do not
+  exist on disk. You MUST fetch each reference or script through the same
+  `retrieve_skill` tool by passing the `file` parameter (for example,
+  `file="references/configure-clients.md"` or `file="scripts/msk_sizing.py"`),
+  and run a script from the content that tool returns. Do NOT `file_read` these
+  paths from the local or working directory, and do NOT search the filesystem
+  for them — they are not there, and any local file that happens to match the
+  name is unrelated to this skill.
+- **Installed locally** (the skill lives in a local skills directory such as
+  `.claude/skills/managing-amazon-msk/`, `~/.claude/skills/managing-amazon-msk/`, or
+  `.kiro/skills/managing-amazon-msk/`). Read references and run scripts from the
+  local skill directory using the relative paths shown throughout this
+  documentation.
+
+This distinction applies **only** to the skill's own packaged files. Every artifact 
+created during a session or supplied by users are read from and written to
+the user's working directory regardless of how the skill was loaded. Never
+fetch or write customer data through `retrieve_skill`.
 
 ## Quick Diagnostics
 
